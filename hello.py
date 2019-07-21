@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, redirect, url_for, request, render_template
 app = Flask(__name__)
 
 
@@ -36,7 +36,42 @@ def test_reverse(id):
     return 'This page id is: {}<br>Hello Visitor!'.format(id)
 
 
+@app.route('/admin')
+def hello_admin():
+    return 'Hello Admin'
 
+@app.route('/guest/<guest>')
+def hello_guest(guest):
+    return 'Hello {} as guest'.format(guest)
+
+@app.route('/user/<name>')
+def hello_user(name):
+    if name == 'admin':
+        return redirect(url_for('hello_admin'))
+    else:
+        return redirect(url_for('hello_guest',guest=name))
+
+@app.route('/success/<name>')
+def success(name):
+    return 'Welcome {}'.format(name)
+
+@app.route('/login', methods = ['POST','GET'])
+def login():
+    if request.method == 'POST':
+        user = request.form['nm']
+        return redirect(url_for('success', name=user))
+    else:
+        user = request.args.get('nm')
+        return redirect(url_for('success', name=user))
+
+@app.route('/html/hello/<user>/')
+def index(user):
+    return render_template('hello.html', name=user)
+
+
+@app.route('/marks/<int:score>')
+def display_marks(score):
+    return render_template('marks.html', marks=score)
 
 
 if __name__ == '__main__':
